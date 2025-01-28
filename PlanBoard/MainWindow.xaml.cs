@@ -43,14 +43,22 @@ namespace PlanBoard
         private void FillLoadMenu()
         {
             LoadBoardMenu.Items.Clear();
-            List<string> files = Directory.GetFiles(BoardFolder).ToList();
-            foreach (string file in files) {
-                string BoardName = Path.GetFileName(file).Replace(Path.GetExtension(file),"");
-                MenuItem BItem = new MenuItem();
-                BItem.Header = BoardName;
-                BItem.Click += BItem_Click;
+            if (Directory.Exists(BoardFolder))
+            {
+                List<string> files = Directory.GetFiles(BoardFolder).ToList();
+                foreach (string file in files)
+                {
+                    string BoardName = Path.GetFileName(file).Replace(Path.GetExtension(file), "");
+                    MenuItem BItem = new MenuItem();
+                    BItem.Header = BoardName;
+                    BItem.Click += BItem_Click;
 
-                LoadBoardMenu.Items.Add(BItem);
+                    LoadBoardMenu.Items.Add(BItem);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(BoardFolder);
             }
         }
 
