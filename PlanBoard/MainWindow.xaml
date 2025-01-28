@@ -1,0 +1,43 @@
+﻿<Window x:Class="PlanBoard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PlanBoard"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <DockPanel Background="DimGray">
+        <Menu DockPanel.Dock="Top" Background="ForestGreen" VerticalAlignment="Top" Foreground="Gainsboro" FontWeight="Bold" FontSize="15" Padding="10" BorderThickness="0,1,0,2" BorderBrush="SlateGray">
+            <MenuItem Header="Board">
+                <MenuItem Header="Save Board" Foreground="Black">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="SaveFileNameInput" Width="100"></TextBox>
+                        <Button Background="ForestGreen" Click="SaveBoard_Click" Content=">" Padding="3"></Button>
+                    </StackPanel>
+                </MenuItem>
+                <MenuItem Header="Load Board" x:Name="LoadBoardMenu" Foreground="Black"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Add Note" Click="AddNote_Click"></MenuItem>
+        </Menu>
+        <ScrollViewer x:Name="BoardContainer" VerticalScrollBarVisibility="Auto" MouseLeftButtonUp="ProjectView_MouseLeftButtonUp">
+            <Canvas x:Name="ProjectView"/>
+            <!--<Border CornerRadius="20" Background="Black" BorderThickness="0" Canvas.Top="100" Canvas.Left="100" Width="200" Height="200">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.2*"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                            <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Row="0" Grid.Column="0" Background="Transparent" Text="Title" BorderBrush="Transparent" Foreground="LightSlateGray" FontWeight="Bold" Margin="10,5,0,0" FontSize="20"></TextBox>
+                        <TextBox Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" Background="Transparent" BorderBrush="Transparent" Margin="10" Foreground="GhostWhite"></TextBox>
+                    </Grid>
+                </Border>-->
+        </ScrollViewer>
+    </DockPanel>
+</Window>
