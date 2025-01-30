@@ -70,6 +70,9 @@ namespace PlanBoard
 
         private void ProjectView_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            Canvas can = BoardContainer.Content as Canvas;
+            can.Width = this.Width;
+            can.Height = this.Height - 100;
             if (AddNoteMode)
             {
                 Point mc = e.GetPosition((Canvas)BoardContainer.Content);
