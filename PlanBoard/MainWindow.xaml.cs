@@ -73,6 +73,14 @@ namespace PlanBoard
             if (AddNoteMode)
             {
                 Point mc = e.GetPosition((Canvas)BoardContainer.Content);
+                if(((Canvas)BoardContainer.Content).Width-200 < mc.X)
+                {
+                    mc.X = ((Canvas)BoardContainer.Content).Width - 200;
+                }
+                if (((Canvas)BoardContainer.Content).Height - 200 < mc.Y)
+                {
+                    mc.Y = ((Canvas)BoardContainer.Content).Height - 200;
+                }
 
                 // creating the note
                 Border NotePaper = new Border();
@@ -130,6 +138,11 @@ namespace PlanBoard
 
                 AddNoteMode = false;
             }
+        }
+
+        private void NewBoard_Click(object sender, RoutedEventArgs e)
+        {
+            BoardContainer.Content = new Canvas() { Name="ProjectView" };
         }
     }
 }

@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PlanBoard"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" MinWidth="200" MinHeight="300">
     <DockPanel Background="DimGray">
         <Menu DockPanel.Dock="Top" Background="ForestGreen" VerticalAlignment="Top" Foreground="Gainsboro" FontWeight="Bold" FontSize="15" Padding="10" BorderThickness="0,1,0,2" BorderBrush="SlateGray">
             <MenuItem Header="Board">
+                <MenuItem Header="New Board" Foreground="Black" Click="NewBoard_Click"></MenuItem>
                 <MenuItem Header="Save Board" Foreground="Black">
                     <StackPanel Orientation="Horizontal">
                         <TextBox x:Name="SaveFileNameInput" Width="100"></TextBox>
@@ -19,8 +20,8 @@
             </MenuItem>
             <MenuItem Header="Add Note" Click="AddNote_Click"></MenuItem>
         </Menu>
-        <ScrollViewer x:Name="BoardContainer" VerticalScrollBarVisibility="Auto" MouseLeftButtonUp="ProjectView_MouseLeftButtonUp">
-            <Canvas x:Name="ProjectView"/>
+        <ScrollViewer x:Name="BoardContainer" VerticalScrollBarVisibility="Auto" MouseLeftButtonUp="ProjectView_MouseLeftButtonUp" HorizontalScrollBarVisibility="Auto">
+            <Canvas x:Name="ProjectView" Height="385" Width="800"/>
             <!--<Border CornerRadius="20" Background="Black" BorderThickness="0" Canvas.Top="100" Canvas.Left="100" Width="200" Height="200">
                     <Grid>
                         <Grid.RowDefinitions>
