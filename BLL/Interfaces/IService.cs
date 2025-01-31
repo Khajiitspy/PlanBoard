@@ -8,8 +8,8 @@ namespace BLL.Interfaces
 {
     public interface IService<T> where T : class
     {
-        Task Delete(int ID);
-        Task Update(params T[] table);
-        Task<IEnumerable<T>> GetAll(params Func<T, bool>[] Filter);
+        void Delete(int ID);
+        void Update(params T[] table);
+        IEnumerable<T> GetAll(params Func<T, bool>[] Filter);
     }
 }

@@ -1,4 +1,8 @@
-﻿using PlanBoard.Tools;
+﻿using BLL.Interfaces;
+using BLL.Models;
+using DAL.Entities;
+using PlanBoard.Tools;
+using PlanBoard.ViewModels;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -9,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Markup;
 
 namespace PlanBoard
 {
@@ -17,21 +22,38 @@ namespace PlanBoard
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool AddNoteMode = false;
-        string BoardFolder = "SavedBoards";
+        BoardViewModel _BVM;
 
-        public MainWindow()
+        bool AddNoteMode = false;
+
+        UserModel _User = null;
+
+        string LocalBoardFolder = "SavedBoards";
+
+        public MainWindow(BoardViewModel BVM)
         {
             InitializeComponent();
+
+            this.DataContext = _BVM = BVM;
 
             FillLoadMenu();
         }
 
         private void SaveBoard_Click(object sender, RoutedEventArgs e)
         {
-            string NewFilePath = $"{BoardFolder}/{SaveFileNameInput.Text}.txt";
-            SaveFileNameInput.Text = "";
-            FileManager.Save(NewFilePath,BoardContainer.Content);
+            string mystrXAML = XamlWriter.Save(BoardContainer.Content);
+            if (_User == null)
+            {
+                string NewFilePath = $"{LocalBoardFolder}/{SaveFileNameInput.Text}.txt";
+                SaveFileNameInput.Text = "";
+                Directory.CreateDirectory(Path.GetDirectoryName(NewFilePath));
+                File.WriteAllText(NewFilePath, mystrXAML);
+            }
+            else
+            {
+                _User.Boards.Add(new BoardModel() { Content = mystrXAML, Name = SaveFileNameInput.Text });
+                _BVM.UserService.Update(_User);
+            }
             FillLoadMenu();
         }
 
@@ -43,29 +65,69 @@ namespace PlanBoard
         private void FillLoadMenu()
         {
             LoadBoardMenu.Items.Clear();
-            if (Directory.Exists(BoardFolder))
+            if (_User == null)
             {
-                List<string> files = Directory.GetFiles(BoardFolder).ToList();
-                foreach (string file in files)
+                if (Directory.Exists(LocalBoardFolder))
                 {
-                    string BoardName = Path.GetFileName(file).Replace(Path.GetExtension(file), "");
+                    List<string> files = Directory.GetFiles(LocalBoardFolder).ToList();
+                    foreach (string file in files)
+                    {
+                        string BoardName = Path.GetFileName(file).Replace(Path.GetExtension(file), "");
+                        MenuItem BItem = new MenuItem();
+                        BItem.Header = BoardName;
+                        BItem.Click += BItem_Click;
+
+                        LoadBoardMenu.Items.Add(BItem);
+                    }
+                }
+                else
+                {
+                    Directory.CreateDirectory(LocalBoardFolder);
+                }
+            }
+            else
+            {
+                foreach (BoardModel model in _User.Boards)
+                {
                     MenuItem BItem = new MenuItem();
-                    BItem.Header = BoardName;
+                    BItem.Header = model.Name;
                     BItem.Click += BItem_Click;
 
                     LoadBoardMenu.Items.Add(BItem);
                 }
             }
-            else
-            {
-                Directory.CreateDirectory(BoardFolder);
-            }
         }
 
         private void BItem_Click(object sender, RoutedEventArgs e)
         {
-            string BoardPath = $"{BoardFolder}/{(sender as MenuItem).Header}.txt";
-            BoardContainer.Content = FileManager.Load<Canvas>(BoardPath);
+            if(_User == null)
+            {
+                string BoardPath = $"{LocalBoardFolder}/{(sender as MenuItem).Header}.txt";
+                string xamlString = File.ReadAllText(BoardPath);
+
+                using (var stringReader = new StringReader(xamlString))
+                {
+                    using (var xmlReader = System.Xml.XmlReader.Create(stringReader))
+                    {
+                        Canvas obj = (Canvas)XamlReader.Load(xmlReader);
+                        BoardContainer.Content = obj;
+                    }
+                }
+            }
+            else
+            {
+                string Board = $"{(sender as MenuItem).Header}";
+                string xamlString = _User.Boards.Find(X => X.Name == Board).Content;
+
+                using (var stringReader = new StringReader(xamlString))
+                {
+                    using (var xmlReader = System.Xml.XmlReader.Create(stringReader))
+                    {
+                        Canvas obj = (Canvas)XamlReader.Load(xmlReader);
+                        BoardContainer.Content = obj;
+                    }
+                }
+            }
         }
 
         private void ProjectView_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -146,6 +208,36 @@ namespace PlanBoard
         private void NewBoard_Click(object sender, RoutedEventArgs e)
         {
             BoardContainer.Content = new Canvas() { Name="ProjectView" };
+        }
+
+        private async void SignIn_Click(object sender, RoutedEventArgs e)
+        {
+            if ((_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && X.Password == ExPasswordInput.Text)).Count() == 1)
+            {
+                _User = (_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && X.Password == ExPasswordInput.Text)).First();
+                MessageBox.Show("Account Connected!");
+                FillLoadMenu();
+            }
+            else
+            {
+                MessageBox.Show("Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                PasswordInput.Text = "";
+            }
+        }
+
+        private async void SignUp_Click(object sender, RoutedEventArgs e)
+        {
+            if ((_BVM.UserService.GetAll(X => X.Username == UsernameInput.Text)).Count() != 1)
+            {
+                _BVM.UserService.Update(new UserModel() { Username = UsernameInput.Text, Password = PasswordInput.Text });
+                MessageBox.Show("Account Created!");
+            }
+            else
+            {
+                MessageBox.Show($"The user {UsernameInput.Text} already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                PasswordInput.Text = "";
+                UsernameInput.Text = "";
+            }
         }
     }
 }

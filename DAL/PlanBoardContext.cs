@@ -10,9 +10,10 @@ namespace DAL
 {
     public class PlanBoardContext:DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public PlanBoardContext(DbContextOptions<PlanBoardContext> options):base(options)
         {
-            optionsBuilder.UseNpgsql("Host=ep-young-fire-a81ppksr-pooler.eastus2.azure.neon.tech;Port=5432;Username=neondb_owner;Password=npg_gmcuiq1ov0Qr;Database=neondb;SSL Mode=Require;Trust Server Certificate=true");
+            Database.EnsureCreated();
+            //optionsBuilder.UseNpgsql("Host=ep-young-fire-a81ppksr-pooler.eastus2.azure.neon.tech;Port=5432;Username=neondb_owner;Password=npg_gmcuiq1ov0Qr;Database=neondb;SSL Mode=Require;Trust Server Certificate=true");
         }
 
         public DbSet<UserEntity> Users { get; set; }

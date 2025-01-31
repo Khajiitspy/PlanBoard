@@ -2,7 +2,9 @@
 using BLL.Interfaces;
 using BLL.Models;
 using BLL.Services;
+using DAL;
 using Microsoft.Extensions.DependencyInjection;
+using PlanBoard.ViewModels;
 using System.Configuration;
 using System.Data;
 using System.Windows;
@@ -19,23 +21,22 @@ namespace PlanBoard
         {
             ServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
+            _serviceProvider = services.BuildServiceProvider();
         }
 
         private void ConfigureServices(ServiceCollection services)
         {
             services.AddTransient(typeof(IService<UserModel>), typeof(UserService));
             services.AddTransient(typeof(MainWindow));
+            services.AddTransient(typeof(BoardViewModel));
 
-            ConfigurationBLL.ConfigureServices(services);
+            ConfigurationBLL.ConfigureServices(services, ConfigurationManager.ConnectionStrings["BoardConnection"].ConnectionString);
         }
 
         private void OnStartUp(object sender, StartupEventArgs e)
         {
             var mainWind = _serviceProvider.GetService<MainWindow>();
-            if (mainWind.IsLoaded)
-            {
-                mainWind.Show();
-            }
+            mainWind.Show();
         }
     }
 }

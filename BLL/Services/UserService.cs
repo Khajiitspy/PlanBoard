@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BLL.Models;
+using BLL.Interfaces;
 
 namespace BLL.Services
 {
-    public class UserService
+    public class UserService : IService<UserModel>
     {
         private IRepository<UserEntity> _repository;
         private IMapper _mapper;
@@ -29,26 +30,26 @@ namespace BLL.Services
         }
 
         #region Public
-        public async Task Delete(int ID)
+        public void Delete(int ID)
         {
-            await _repository.Delete(_repository.GetAll().Result.Where(X => ID == X.ID).First());
+            _repository.Delete(_repository.GetAll().Where(X => ID == X.ID).First());
         }
 
-        public async Task<IEnumerable<UserModel>> GetAll(params Func<UserModel, bool>[] Filters)
+        public IEnumerable<UserModel> GetAll(params Func<UserModel, bool>[] Filters)
         {
-            return _users = _repository.GetAll().Result.Select(X => _mapper.Map<UserEntity,UserModel>(X)).Where(X => {
+            return _users = _repository.GetAll().Select(X => _mapper.Map<UserEntity,UserModel>(X)).Where(X => {
                 bool Accept = true;
                 Filters.ToList().ForEach(M => Accept = M(X));
                 return Accept;
             }).ToList();
         }
 
-        public async Task Update(params UserModel[] table)
+        public void Update(params UserModel[] table)
         {
             if (table.Length == 0 && _users != null)
-                await _repository.Update(_users.Select(X => _mapper.Map<UserModel,UserEntity>(X)).ToArray());
+                _repository.Update(_users.Select(X => _mapper.Map<UserModel,UserEntity>(X)).ToArray());
             else if (table.Length != 0)
-                await _repository.Update(table.Select(X => _mapper.Map<UserModel,UserEntity>(X)).ToArray());
+                _repository.Update(table.Select(X => _mapper.Map<UserModel,UserEntity>(X)).ToArray());
         }
         #endregion
 

@@ -12,14 +12,51 @@
                 <MenuItem Header="New Board" Foreground="Black" Click="NewBoard_Click"></MenuItem>
                 <MenuItem Header="Save Board" Foreground="Black">
                     <StackPanel Orientation="Horizontal">
-                        <TextBox x:Name="SaveFileNameInput" Width="100"></TextBox>
+                        <TextBox x:Name="SaveFileNameInput" Width="100" TextAlignment="Center" VerticalAlignment="Center"></TextBox>
                         <Button Background="ForestGreen" Click="SaveBoard_Click" Content=">" Padding="3"></Button>
                     </StackPanel>
                 </MenuItem>
                 <MenuItem Header="Load Board" x:Name="LoadBoardMenu" Foreground="Black"></MenuItem>
             </MenuItem>
             <MenuItem Header="Add Note" Click="AddNote_Click"></MenuItem>
+            <MenuItem Header="Account">
+                <MenuItem Header="Sign In" Foreground="Black">
+                    <Grid Background="GhostWhite" Width="250" Height="200">
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <TextBox x:Name="ExUsernameInput" Width="150" FontWeight="Bold" FontSize="15" Grid.Row="0" TextAlignment="Center" Margin="0,10,0,0" Padding="5"></TextBox>
+                        <TextBlock Text="Username" FontWeight="Bold" FontSize="17" Grid.Row="1" HorizontalAlignment="Center" Foreground="ForestGreen"></TextBlock>
+                        <TextBox x:Name="ExPasswordInput" Width="150" FontWeight="Bold" FontSize="15" Grid.Row="2" TextAlignment="Center" Margin="0,10,0,0" Padding="5"></TextBox>
+                        <TextBlock Text="Password" FontWeight="Bold" FontSize="17" Grid.Row="3" HorizontalAlignment="Center" Foreground="ForestGreen"></TextBlock>
+                        <Button Grid.Row="4" Content="Sign In" Foreground="WhiteSmoke" Background="ForestGreen" HorizontalAlignment="Right" Margin="0,0,10,10" Padding="5" Click="SignIn_Click"></Button>
+                    </Grid>
+                </MenuItem>
+                <MenuItem Header="Sign Up" Foreground="Black">
+                    <Grid Background="GhostWhite" Width="250" Height="200">
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <TextBox x:Name="UsernameInput" Width="150" FontWeight="Bold" FontSize="15" Grid.Row="0" TextAlignment="Center" Margin="0,10,0,0" Padding="5"></TextBox>
+                        <TextBlock Text="Username" FontWeight="Bold" FontSize="17" Grid.Row="1" HorizontalAlignment="Center" Foreground="ForestGreen"></TextBlock>
+                        <TextBox x:Name="PasswordInput" Width="150" FontWeight="Bold" FontSize="15" Grid.Row="2" TextAlignment="Center" Margin="0,10,0,0" Padding="5"></TextBox>
+                        <TextBlock Text="Password" FontWeight="Bold" FontSize="17" Grid.Row="3" HorizontalAlignment="Center" Foreground="ForestGreen"></TextBlock>
+                        <Button Grid.Row="4" Content="Sign Up" Foreground="WhiteSmoke" Background="ForestGreen" HorizontalAlignment="Right" Margin="0,0,10,10" Padding="5" Click="SignUp_Click"></Button>
+                    </Grid>
+                </MenuItem>
+            </MenuItem>
         </Menu>
+
         <ScrollViewer x:Name="BoardContainer" VerticalScrollBarVisibility="Auto" MouseLeftButtonUp="ProjectView_MouseLeftButtonUp" HorizontalScrollBarVisibility="Auto">
             <Canvas x:Name="ProjectView" Height="385" Width="800"/>
             <!--<Border CornerRadius="20" Background="Black" BorderThickness="0" Canvas.Top="100" Canvas.Left="100" Width="200" Height="200">

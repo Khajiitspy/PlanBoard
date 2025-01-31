@@ -20,5 +20,11 @@ namespace DAL.Entities
         
         [Required]
         public string Content { get; set; }
+
+        public int UserEntityId { get; set; }
+
+
+        [ForeignKey("UserEntityId")]
+        public virtual UserEntity User { get; set; }
     }
 }

@@ -23,6 +23,6 @@ namespace DAL.Entities
         public string Password { get; set; }
 
         [Required]
-        public List<BoardEntity> Boards { get; set; }
+        public virtual List<BoardEntity> Boards { get; set; } = new List<BoardEntity>();
     }
 }

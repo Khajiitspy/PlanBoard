@@ -1,5 +1,6 @@
 ﻿using DAL.Entities;
 using DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,18 +19,18 @@ namespace DAL.Repositories
         }
 
         #region Public
-        public async Task Delete(UserEntity value)
+        public void Delete(UserEntity value)
         {
             _context.Users.Remove(value);
             _context.SaveChanges();
         }
 
-        public async Task<IEnumerable<UserEntity>> GetAll()
+        public IEnumerable<UserEntity> GetAll()
         {
-            return await Task.Run(() => _context.Users.ToList());
+            return _context.Users.Include(u => u.Boards).ToList();
         }
 
-        public async Task Update(params UserEntity[] table)
+        public void Update(params UserEntity[] table)
         {
             foreach (var X in table)
             {
@@ -39,13 +40,34 @@ namespace DAL.Repositories
                     {
                         UserEntity R = _context.Users.Where(Y => Y.Username == X.Username).First();
                         R.Password = X.Password;
+                        BoardUpdate(R, X.Boards.ToArray());
                     }
                     else
                         _context.Users.Add(X);
                 }
                 else throw new Exception("The row was not valid, make sure all columns are correct!");
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
+        }
+
+        private void BoardUpdate(UserEntity user, params BoardEntity[] table)
+        {
+            foreach (var X in table)
+            {
+                if (user.Boards.Where(Y => Y.Name == X.Name).Count() == 1)
+                {
+                    BoardEntity R = user.Boards.Where(Y => Y.Name == X.Name).First();
+                    R.Content = X.Content;
+
+                }
+                else
+                {
+                    _context.Boards.Add(X);
+                    user.Boards.Add(X);
+                    _context.SaveChanges();
+                }
+            }
+            _context.SaveChanges();
         }
 
         public bool IsUserValid(UserEntity Row)
