@@ -1,7 +1,6 @@
 ﻿using BLL.Interfaces;
 using BLL.Models;
 using DAL.Entities;
-using PlanBoard.Tools;
 using PlanBoard.ViewModels;
 using System.IO;
 using System.Text;
@@ -14,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Markup;
+using BCrypt.Net;
 
 namespace PlanBoard
 {
@@ -51,8 +51,18 @@ namespace PlanBoard
             }
             else
             {
-                _User.Boards.Add(new BoardModel() { Content = mystrXAML, Name = SaveFileNameInput.Text });
-                _BVM.UserService.Update(_User);
+                if (!_User.Boards.Exists(X=>X.Name==SaveFileNameInput.Text))
+                {
+                    _User.Boards.Add(new BoardModel() { Content = mystrXAML, Name = SaveFileNameInput.Text });
+                    _BVM.UserService.Update(_User);
+                    MessageBox.Show("Board Saved");
+                }
+                else
+                {
+                    _User.Boards.Where(X => X.Name == SaveFileNameInput.Text).First().Content = mystrXAML;
+                    _BVM.UserService.Update(_User);
+                    MessageBox.Show("Board Updated");
+                }
             }
             FillLoadMenu();
         }
@@ -212,29 +222,60 @@ namespace PlanBoard
 
         private async void SignIn_Click(object sender, RoutedEventArgs e)
         {
-            if ((_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && X.Password == ExPasswordInput.Text)).Count() == 1)
+            //if ((_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && X.Password == ExPasswordInput.Text)).Count() == 1)
+            //{
+            //    _User = (_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && BCrypt.Net.BCrypt.Verify( ExPasswordInput.Text,X.Password))).First();
+            //    MessageBox.Show("Account Connected!");
+            //    FillLoadMenu();
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    PasswordInput.Text = "";
+            //}
+
+            var user = _BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text).FirstOrDefault();
+
+            if (user != null && BCrypt.Net.BCrypt.Verify(ExPasswordInput.Text, user.Password))
             {
-                _User = (_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && X.Password == ExPasswordInput.Text)).First();
-                MessageBox.Show("Account Connected!");
+                _User = user;  // Store the authenticated user
+                MessageBox.Show("✅ Account Connected!");
                 FillLoadMenu();
             }
             else
             {
-                MessageBox.Show("Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
-                PasswordInput.Text = "";
+                MessageBox.Show("❌ Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
+                ExUsernameInput.Text = "";
+                ExPasswordInput.Text = "";  // Clear password field
             }
         }
 
         private async void SignUp_Click(object sender, RoutedEventArgs e)
         {
-            if ((_BVM.UserService.GetAll(X => X.Username == UsernameInput.Text)).Count() != 1)
+            //if ((_BVM.UserService.GetAll(X => X.Username == UsernameInput.Text)).Count() != 1)
+            //{
+            //    _BVM.UserService.Update(new UserModel() { Username = UsernameInput.Text, Password = BCrypt.Net.BCrypt.HashPassword(PasswordInput.Text) });
+            //    MessageBox.Show("Account Created!");
+            //}
+            //else
+            //{
+            //    MessageBox.Show($"The user {UsernameInput.Text} already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    PasswordInput.Text = "";
+            //    UsernameInput.Text = "";
+            //}
+
+            var existingUser = _BVM.UserService.GetAll(X => X.Username == UsernameInput.Text).FirstOrDefault();
+
+            if (existingUser == null)
             {
-                _BVM.UserService.Update(new UserModel() { Username = UsernameInput.Text, Password = PasswordInput.Text });
-                MessageBox.Show("Account Created!");
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(PasswordInput.Text);
+                _BVM.UserService.Update(new UserModel() { Username = UsernameInput.Text, Password = hashedPassword });
+
+                MessageBox.Show("✅ Account Created!");
             }
             else
             {
-                MessageBox.Show($"The user {UsernameInput.Text} already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"❌ The user '{UsernameInput.Text}' already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 PasswordInput.Text = "";
                 UsernameInput.Text = "";
             }
