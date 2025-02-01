@@ -12,7 +12,7 @@
                 <MenuItem Header="New Board" Foreground="Black" Click="NewBoard_Click"></MenuItem>
                 <MenuItem Header="Save Board" Foreground="Black">
                     <StackPanel Orientation="Horizontal">
-                        <TextBox x:Name="SaveFileNameInput" Width="100" TextAlignment="Center" VerticalAlignment="Center"></TextBox>
+                        <TextBox x:Name="SaveFileNameInput" Width="100" TextAlignment="Center" VerticalAlignment="Center" Padding="5"></TextBox>
                         <Button Background="ForestGreen" Click="SaveBoard_Click" Content=">" Padding="3"></Button>
                     </StackPanel>
                 </MenuItem>
@@ -55,10 +55,21 @@
                     </Grid>
                 </MenuItem>
             </MenuItem>
+            <MenuItem Header="Share">
+                <MenuItem Header="Enter Code" Foreground="Black">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="ShareCodeInput" Width="100" TextAlignment="Center" VerticalAlignment="Center" Padding="5"></TextBox>
+                        <Button Background="ForestGreen" Click="ShareCodeButton_Click" Content=">" Padding="3"></Button>
+                    </StackPanel>
+                </MenuItem>
+                <MenuItem x:Name="BoardShareCode" Header="Your Code" Foreground="Black">
+                    <TextBox x:Name="ShareCodeView" Text="N/A" TextWrapping="Wrap" Width="150" IsReadOnly="True"></TextBox>
+                </MenuItem>
+            </MenuItem>
         </Menu>
 
         <ScrollViewer x:Name="BoardContainer" VerticalScrollBarVisibility="Auto" MouseLeftButtonUp="ProjectView_MouseLeftButtonUp" HorizontalScrollBarVisibility="Auto">
-            <Canvas x:Name="ProjectView" Height="385" Width="800"/>
+            <Canvas x:Name="ProjectView"/>
             <!--<Border CornerRadius="20" Background="Black" BorderThickness="0" Canvas.Top="100" Canvas.Left="100" Width="200" Height="200">
                     <Grid>
                         <Grid.RowDefinitions>

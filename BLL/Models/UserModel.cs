@@ -11,6 +11,6 @@ namespace BLL.Models
         public int ID { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public List<BoardModel> Boards { get; set; }
+        public virtual List<BoardModel> Boards { get; set; }
     }
 }

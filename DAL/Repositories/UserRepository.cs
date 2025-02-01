@@ -58,12 +58,12 @@ namespace DAL.Repositories
                 {
                     BoardEntity R = user.Boards.Where(Y => Y.Name == X.Name).First();
                     R.Content = X.Content;
-
+                    R.Users = X.Users;
                 }
                 else
                 {
-                    _context.Boards.Add(X);
-                    user.Boards.Add(X);
+                    //_context.Boards.Add(X);
+                    user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
                     _context.SaveChanges();
                 }
             }

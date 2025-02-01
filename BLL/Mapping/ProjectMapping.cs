@@ -23,7 +23,8 @@ namespace BLL.Mapping
             CreateMap<BoardModel, BoardEntity>()
                 .ForMember(x => x.ID, opt => opt.MapFrom(x => x.ID))
                 .ForMember(x => x.Name, opt => opt.MapFrom(x => x.Name))
-                .ForMember(x => x.Content, opt => opt.MapFrom(x => x.Content));
+                .ForMember(x => x.Content, opt => opt.MapFrom(x => x.Content))
+                .ForMember(x => x.Users, opt => opt.MapFrom(x => x.Users));
 
             CreateMap<UserModel, UserEntity>()
                 .ForMember(x => x.ID, opt => opt.MapFrom(x => x.ID))

@@ -63,6 +63,7 @@ namespace PlanBoard
                     _BVM.UserService.Update(_User);
                     MessageBox.Show("Board Updated");
                 }
+                ShareCodeView.Text = $"{Convert.ToBase64String(Encoding.UTF8.GetBytes(_User.Username))}//Board:{SaveFileNameInput.Text}";
             }
             FillLoadMenu();
         }
@@ -137,6 +138,8 @@ namespace PlanBoard
                         BoardContainer.Content = obj;
                     }
                 }
+
+                ShareCodeView.Text = $"{Convert.ToBase64String(Encoding.UTF8.GetBytes(_User.Username))}//Board:{Board}";
             }
         }
 
@@ -218,52 +221,32 @@ namespace PlanBoard
         private void NewBoard_Click(object sender, RoutedEventArgs e)
         {
             BoardContainer.Content = new Canvas() { Name="ProjectView" };
+            ShareCodeView.Text = "N/A";
         }
 
         private async void SignIn_Click(object sender, RoutedEventArgs e)
         {
-            //if ((_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && X.Password == ExPasswordInput.Text)).Count() == 1)
-            //{
-            //    _User = (_BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text && BCrypt.Net.BCrypt.Verify( ExPasswordInput.Text,X.Password))).First();
-            //    MessageBox.Show("Account Connected!");
-            //    FillLoadMenu();
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    PasswordInput.Text = "";
-            //}
 
             var user = _BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text).FirstOrDefault();
 
             if (user != null && BCrypt.Net.BCrypt.Verify(ExPasswordInput.Text, user.Password))
             {
-                _User = user;  // Store the authenticated user
+                _User = user; 
                 MessageBox.Show("✅ Account Connected!");
                 FillLoadMenu();
+                BoardContainer.Content = new Canvas() { Name = "ProjectView" };
+                ShareCodeView.Text = "N/A";
             }
             else
             {
                 MessageBox.Show("❌ Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
-                ExUsernameInput.Text = "";
-                ExPasswordInput.Text = "";  // Clear password field
             }
+            ExUsernameInput.Text = "";
+            ExPasswordInput.Text = "";
         }
 
         private async void SignUp_Click(object sender, RoutedEventArgs e)
         {
-            //if ((_BVM.UserService.GetAll(X => X.Username == UsernameInput.Text)).Count() != 1)
-            //{
-            //    _BVM.UserService.Update(new UserModel() { Username = UsernameInput.Text, Password = BCrypt.Net.BCrypt.HashPassword(PasswordInput.Text) });
-            //    MessageBox.Show("Account Created!");
-            //}
-            //else
-            //{
-            //    MessageBox.Show($"The user {UsernameInput.Text} already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    PasswordInput.Text = "";
-            //    UsernameInput.Text = "";
-            //}
-
             var existingUser = _BVM.UserService.GetAll(X => X.Username == UsernameInput.Text).FirstOrDefault();
 
             if (existingUser == null)
@@ -276,9 +259,53 @@ namespace PlanBoard
             else
             {
                 MessageBox.Show($"❌ The user '{UsernameInput.Text}' already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                PasswordInput.Text = "";
-                UsernameInput.Text = "";
             }
+            PasswordInput.Text = "";
+            UsernameInput.Text = "";
+        }
+
+        private void ShareCodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_User != null)
+            {
+                string Boardname = ShareCodeInput.Text.Substring(ShareCodeInput.Text.IndexOf("//Board:") + 8);
+
+                string Username = ShareCodeInput.Text.Substring(0, ShareCodeInput.Text.IndexOf("//Board"));
+                Username = Encoding.UTF8.GetString(Convert.FromBase64String(Username));
+
+                UserModel user = _BVM.UserService.GetAll(X=>X.Username==Username).First();
+                try
+                {
+                    if (user != null)
+                    {
+                        var board = user.Boards.Where(X => X.Name == Boardname).FirstOrDefault();
+                        if (board != null)
+                        {
+                            //board.Users.Add(_User);
+                            _User.Boards.Add(board);
+                            _BVM.UserService.Update(_User);
+                        }
+                        else
+                        {
+                            throw new Exception("Share Code was invalid!");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Share Code was invalid!");
+                    }
+                    FillLoadMenu();
+                    MessageBox.Show("You gained access to a Canvas");
+                }
+                catch (Exception ex) {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Account needed!");
+            }
+            ShareCodeInput.Text = "";
         }
     }
 }

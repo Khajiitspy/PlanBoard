@@ -11,5 +11,7 @@ namespace BLL.Models
         public int ID { get; set; }
         public string Name { get; set; }
         public string Content { get; set; }
+
+        public virtual List<UserModel> Users { get; set; }
     }
 }
