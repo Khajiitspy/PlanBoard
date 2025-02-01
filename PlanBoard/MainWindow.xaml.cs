@@ -128,7 +128,8 @@ namespace PlanBoard
             else
             {
                 string Board = $"{(sender as MenuItem).Header}";
-                string xamlString = (_User = _BVM.UserService.GetAll(X=>X.ID==_User.ID).First()).Boards.Find(X => X.Name == Board).Content;
+                var user = _BVM.UserService.GetAll(X => X.ID == _User.ID);
+                string xamlString = (_User = user.First()).Boards.Find(X => X.Name == Board).Content;
 
                 using (var stringReader = new StringReader(xamlString))
                 {

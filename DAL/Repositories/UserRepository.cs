@@ -62,9 +62,20 @@ namespace DAL.Repositories
                 }
                 else
                 {
-                    //_context.Boards.Add(X);
-                    user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
-                    _context.SaveChanges();
+                    if(X.ID == 0)
+                    {
+                        _context.Boards.Add(X);
+                        X.Users.Add(user);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        user.Boards.Add(_context.Boards.Where(Y => Y.ID == X.ID).First());
+                        _context.SaveChanges();
+                    }
+
+                    //user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
+                    //_context.SaveChanges();
                 }
             }
             _context.SaveChanges();
