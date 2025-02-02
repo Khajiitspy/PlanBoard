@@ -12,7 +12,7 @@ namespace DAL.Entities
     public class BoardEntity
     {
         [Key]
-        public int ID { get; set; } = -1;
+        public int ID { get; set; }
         
         [Required]
         [StringLength(50)]

@@ -335,7 +335,7 @@ namespace PlanBoard
                         
                         if (board != null) // If the user actually has a board with that name.
                         {
-                            //board.Users.Add(_User);
+                            board.Users.Add(_User);
 
                             // Gives the current user access to the board.
                             _User.Boards.Add(board);
@@ -352,7 +352,7 @@ namespace PlanBoard
                     }
                     // Update board list
                     FillLoadMenu();
-                    MessageBox.Show("You gained access to a Canvas");
+                    MessageBox.Show($"You gained access to a the Board {Boardname}!");
                 }
                 catch (Exception ex) {
                     MessageBox.Show(ex.Message);

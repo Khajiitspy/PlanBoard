@@ -59,7 +59,7 @@ namespace DAL.Repositories
             {
                 // Since this method is private and will only get a users whole board list I decided to clear the _context user's boards (first line of this method) and then add the params Boards to be able to delete boards without having to create a seperate service and repository.
 
-                if (X.ID == -1)
+                if (_context.Boards.Where(Y=>X.ID==Y.ID).Count()!=1)
                 {
                     _context.Boards.Add(X);
                     X.Users.Add(user);
