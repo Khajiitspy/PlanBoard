@@ -71,7 +71,7 @@ namespace DAL.Repositories
                     }
                     else
                     {
-                        user.Boards.Add(X);
+                        user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
                         _context.SaveChanges();
                     }
 
