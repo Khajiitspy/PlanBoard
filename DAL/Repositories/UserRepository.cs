@@ -69,14 +69,11 @@ namespace DAL.Repositories
                         X.Users.Add(user);
                         _context.SaveChanges();
                     }
-
-                    // Old code, does not seem to be needed but saved it here anyway
-
-                    //else
-                    //{
-                    //    user.Boards.Add(X);
-                    //    _context.SaveChanges();
-                    //}
+                    else
+                    {
+                        user.Boards.Add(X);
+                        _context.SaveChanges();
+                    }
 
                     //user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
                     //_context.SaveChanges();
