@@ -95,6 +95,7 @@ namespace PlanBoard
                         MenuItem BItem = new MenuItem();
                         BItem.Header = BoardName;
                         BItem.Click += BItem_Click;
+                        BItem.MouseRightButtonUp += BItem_MouseRightButtonUp;
 
                         LoadBoardMenu.Items.Add(BItem);
                     }
@@ -111,9 +112,30 @@ namespace PlanBoard
                     MenuItem BItem = new MenuItem();
                     BItem.Header = model.Name;
                     BItem.Click += BItem_Click;
+                    BItem.MouseRightButtonUp += BItem_MouseRightButtonUp;
 
                     LoadBoardMenu.Items.Add(BItem);
                 }
+            }
+        }
+
+        private void BItem_MouseRightButtonUp(object sender, MouseButtonEventArgs e) // Board Deletion
+        {
+            MessageBoxResult MBR = MessageBox.Show("Would you like to delete this Board?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (MBR == MessageBoxResult.Yes) {
+                if(_User == null) // Guest
+                {
+                    string BoardPath = $"{LocalBoardFolder}/{(sender as MenuItem).Header}.txt";
+                    File.Delete(BoardPath);
+                }
+                else // Account
+                {
+                    string Board = $"{(sender as MenuItem).Header}";
+                    var user = _BVM.UserService.GetAll(X => X.ID == _User.ID);
+                    _User.Boards.Remove(_User.Boards.Where(X => X.Name == Board).First()); // Should exist since the names and boards have been loaded based on already existing boards.
+                    _BVM.UserService.Update(_User);
+                }
+                FillLoadMenu();
             }
         }
 

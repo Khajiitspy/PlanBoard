@@ -12,7 +12,7 @@ namespace DAL.Entities
     public class BoardEntity
     {
         [Key]
-        public int ID { get; set; }
+        public int ID { get; set; } = -1;
         
         [Required]
         [StringLength(50)]
@@ -21,6 +21,6 @@ namespace DAL.Entities
         [Required]
         public string Content { get; set; }
 
-        public List<UserEntity> Users { get; set; }
+        public virtual List<UserEntity> Users { get; set; } = new List<UserEntity>();
     }
 }

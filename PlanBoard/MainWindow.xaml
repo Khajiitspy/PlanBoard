@@ -16,7 +16,7 @@
                         <Button Background="ForestGreen" Click="SaveBoard_Click" Content=">" Padding="3"></Button>
                     </StackPanel>
                 </MenuItem>
-                <MenuItem Header="Load Board" x:Name="LoadBoardMenu" Foreground="Black"></MenuItem>
+                <MenuItem Header="Boards" x:Name="LoadBoardMenu" Foreground="Black"></MenuItem>
             </MenuItem>
             <MenuItem Header="Add Note" Click="AddNote_Click"></MenuItem>
             <MenuItem Header="Account">

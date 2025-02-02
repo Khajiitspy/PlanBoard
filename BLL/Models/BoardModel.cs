@@ -8,7 +8,7 @@ namespace BLL.Models
 {
     public class BoardModel
     {
-        public int ID { get; set; }
+        public int ID { get; set; } = -1;
         public string Name { get; set; }
         public string Content { get; set; }
 

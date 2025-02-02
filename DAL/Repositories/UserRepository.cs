@@ -53,32 +53,34 @@ namespace DAL.Repositories
 
         private void BoardUpdate(UserEntity user, params BoardEntity[] table)
         {
+            user.Boards.Clear();
+
             foreach (var X in table)
             {
-                if (user.Boards.Where(Y => Y.Name == X.Name).Count() == 1) // UPDATE
-                {
-                    BoardEntity R = user.Boards.Where(Y => Y.Name == X.Name).First();
-                    R.Content = X.Content;
-                    R.Users = X.Users;
-                }
-                else // ADD
-                {
-                    if(X.ID == 0)
-                    {
-                        _context.Boards.Add(X);
-                        X.Users.Add(user);
-                        _context.SaveChanges();
-                    }
-                    else
-                    {
-                        user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
-                        _context.SaveChanges();
-                    }
+                // Since this method is private and will only get a users whole board list I decided to clear the _context user's boards (first line of this method) and then add the params Boards to be able to delete boards without having to create a seperate service and repository.
 
-                    //user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
-                    //_context.SaveChanges();
+                if (X.ID == -1)
+                {
+                    _context.Boards.Add(X);
+                    X.Users.Add(user);
+                }
+                else // Board already exists but so you just grant the user access. and updates the contents of the board
+                {
+                    BoardEntity R = _context.Boards.Where(Y => Y.ID == X.ID).First();
+                    R.Content = X.Content;
+                    user.Boards.Add(R);
                 }
             }
+
+            _context.SaveChanges();
+
+            List<BoardEntity> BL = _context.Boards.Include(u => u.Users).ToList();
+            foreach (var Board in BL) { // Search for boards that have been deleted by all users that owned it to delete them.
+                if (Board.Users.Count() == 0) {
+                    _context.Boards.Remove(Board);
+                }
+            }
+
             _context.SaveChanges();
         }
 
