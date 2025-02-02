@@ -30,19 +30,20 @@ namespace DAL.Repositories
             return _context.Users.Include(u => u.Boards).ToList();
         }
 
-        public void Update(params UserEntity[] table)
+        public void Update(params UserEntity[] table) // Update users
         {
             foreach (var X in table)
             {
                 if (IsUserValid(X))
                 {
-                    if (_context.Users.Where(Y => Y.Username == X.Username).Count() == 1)
+                    if (_context.Users.Where(Y => Y.Username == X.Username).Count() == 1) // If the user exists / UPDATE
                     {
+                        // Gets the corresponding user from the context, which avois an error
                         UserEntity R = _context.Users.Where(Y => Y.Username == X.Username).First();
                         R.Password = X.Password;
                         BoardUpdate(R, X.Boards.ToArray());
                     }
-                    else
+                    else // If the the user does not exist / ADD
                         _context.Users.Add(X);
                 }
                 else throw new Exception("The row was not valid, make sure all columns are correct!");
@@ -54,13 +55,13 @@ namespace DAL.Repositories
         {
             foreach (var X in table)
             {
-                if (user.Boards.Where(Y => Y.Name == X.Name).Count() == 1)
+                if (user.Boards.Where(Y => Y.Name == X.Name).Count() == 1) // UPDATE
                 {
                     BoardEntity R = user.Boards.Where(Y => Y.Name == X.Name).First();
                     R.Content = X.Content;
                     R.Users = X.Users;
                 }
-                else
+                else // ADD
                 {
                     if(X.ID == 0)
                     {
@@ -68,11 +69,14 @@ namespace DAL.Repositories
                         X.Users.Add(user);
                         _context.SaveChanges();
                     }
-                    else
-                    {
-                        user.Boards.Add(_context.Boards.Where(Y => Y.ID == X.ID).First());
-                        _context.SaveChanges();
-                    }
+
+                    // Old code, does not seem to be needed but saved it here anyway
+
+                    //else
+                    //{
+                    //    user.Boards.Add(X);
+                    //    _context.SaveChanges();
+                    //}
 
                     //user.Boards.Add(_context.Boards.Where(Y=>Y.ID == X.ID).First());
                     //_context.SaveChanges();
@@ -81,7 +85,7 @@ namespace DAL.Repositories
             _context.SaveChanges();
         }
 
-        public bool IsUserValid(UserEntity Row)
+        public bool IsUserValid(UserEntity Row) // Checks whether the user is able to be added to the database.
         {
             if (Row != null &&
                 !String.IsNullOrEmpty(Row.Username) &&

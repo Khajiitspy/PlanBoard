@@ -8,7 +8,7 @@ namespace DAL.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        void Update(params T[] table);
+        void Update(params T[] table); // Both add and update
         void Delete(T value);
         IEnumerable<T> GetAll();
     }

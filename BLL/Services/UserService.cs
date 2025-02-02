@@ -46,9 +46,9 @@ namespace BLL.Services
 
         public void Update(params UserModel[] table)
         {
-            if (table.Length == 0 && _users != null)
+            if (table.Length == 0 && _users != null) // Checks if params has nothing and it is possible to use the private _users which could have been changed to update.
                 _repository.Update(_users.Select(X => _mapper.Map<UserModel,UserEntity>(X)).ToArray());
-            else if (table.Length != 0)
+            else if (table.Length != 0) // params has something, so will update according to them.
                 _repository.Update(table.Select(X => _mapper.Map<UserModel,UserEntity>(X)).ToArray());
         }
         #endregion

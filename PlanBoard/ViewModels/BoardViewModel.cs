@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PlanBoard.ViewModels
 {
-    public class BoardViewModel : INotifyPropertyChanged
+    public class BoardViewModel : INotifyPropertyChanged // Nothing interesting, just exists because I do not know how to work without it.
     {
         public IService<UserModel> UserService;
         public event PropertyChangedEventHandler? PropertyChanged;

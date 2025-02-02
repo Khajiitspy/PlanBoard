@@ -24,10 +24,13 @@ namespace PlanBoard
     {
         BoardViewModel _BVM;
 
+        // Activated when Add note button is clicked
         bool AddNoteMode = false;
 
+        // Connected Account
         UserModel _User = null;
 
+        // For guest
         string LocalBoardFolder = "SavedBoards";
 
         public MainWindow(BoardViewModel BVM)
@@ -36,28 +39,31 @@ namespace PlanBoard
 
             this.DataContext = _BVM = BVM;
 
+            // Load Board menu updating
             FillLoadMenu();
         }
 
         private void SaveBoard_Click(object sender, RoutedEventArgs e)
         {
+            // xaml string representation of the Board
             string mystrXAML = XamlWriter.Save(BoardContainer.Content);
-            if (_User == null)
+
+            if (_User == null) // Guest save: Just dowload the xamlstring into a local .txt document
             {
                 string NewFilePath = $"{LocalBoardFolder}/{SaveFileNameInput.Text}.txt";
                 SaveFileNameInput.Text = "";
                 Directory.CreateDirectory(Path.GetDirectoryName(NewFilePath));
                 File.WriteAllText(NewFilePath, mystrXAML);
             }
-            else
+            else // Accoutn Save: Loads the xaml string into a database on a web server.
             {
-                if (!_User.Boards.Exists(X=>X.Name==SaveFileNameInput.Text))
+                if (!_User.Boards.Exists(X=>X.Name==SaveFileNameInput.Text)) // Creates a new board
                 {
                     _User.Boards.Add(new BoardModel() { Content = mystrXAML, Name = SaveFileNameInput.Text });
                     _BVM.UserService.Update(_User);
                     MessageBox.Show("Board Saved");
                 }
-                else
+                else // Updates an existing board
                 {
                     _User.Boards.Where(X => X.Name == SaveFileNameInput.Text).First().Content = mystrXAML;
                     _BVM.UserService.Update(_User);
@@ -75,10 +81,12 @@ namespace PlanBoard
 
         private void FillLoadMenu()
         {
+            // Remove Previous boards (to refresh)
             LoadBoardMenu.Items.Clear();
-            if (_User == null)
+
+            if (_User == null)// Guest boards
             {
-                if (Directory.Exists(LocalBoardFolder))
+                if (Directory.Exists(LocalBoardFolder)) // Gets boards from folder
                 {
                     List<string> files = Directory.GetFiles(LocalBoardFolder).ToList();
                     foreach (string file in files)
@@ -91,12 +99,12 @@ namespace PlanBoard
                         LoadBoardMenu.Items.Add(BItem);
                     }
                 }
-                else
+                else // Creates folder if it doesn't exist
                 {
                     Directory.CreateDirectory(LocalBoardFolder);
                 }
             }
-            else
+            else // Account Boards
             {
                 foreach (BoardModel model in _User.Boards)
                 {
@@ -109,9 +117,9 @@ namespace PlanBoard
             }
         }
 
-        private void BItem_Click(object sender, RoutedEventArgs e)
+        private void BItem_Click(object sender, RoutedEventArgs e) // Is activated upon clicking on a board in the load board menu. Which just loads the board onto the workspace
         {
-            if(_User == null)
+            if(_User == null) // Guest
             {
                 string BoardPath = $"{LocalBoardFolder}/{(sender as MenuItem).Header}.txt";
                 string xamlString = File.ReadAllText(BoardPath);
@@ -125,7 +133,7 @@ namespace PlanBoard
                     }
                 }
             }
-            else
+            else // Account
             {
                 string Board = $"{(sender as MenuItem).Header}";
                 var user = _BVM.UserService.GetAll(X => X.ID == _User.ID);
@@ -140,18 +148,24 @@ namespace PlanBoard
                     }
                 }
 
+                // Creating the share link...
                 ShareCodeView.Text = $"{Convert.ToBase64String(Encoding.UTF8.GetBytes(_User.Username))}//Board:{Board}";
             }
         }
 
         private void ProjectView_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            // Makes sure the canvas is scaled to the size of the screen, (may be off, not tested).
             Canvas can = BoardContainer.Content as Canvas;
             can.Width = this.Width;
             can.Height = this.Height - 100;
-            if (AddNoteMode)
+
+            if (AddNoteMode) // Adding a note onto the board
             {
+                // Mouse Position
                 Point mc = e.GetPosition((Canvas)BoardContainer.Content);
+
+                // Making sure the note is completely inside the board.
                 if(((Canvas)BoardContainer.Content).Width-200 < mc.X)
                 {
                     mc.X = ((Canvas)BoardContainer.Content).Width - 200;
@@ -211,6 +225,7 @@ namespace PlanBoard
                 Grid.SetColumnSpan(NotePassage, 3);
                 Grid.SetColumn(NotePassage, 0);
 
+                // Adding it to the board
                 ((Canvas)BoardContainer.Content).Children.Add(NotePaper);
                 Canvas.SetTop(NotePaper, mc.Y);
                 Canvas.SetLeft(NotePaper, mc.X);
@@ -219,7 +234,7 @@ namespace PlanBoard
             }
         }
 
-        private void NewBoard_Click(object sender, RoutedEventArgs e)
+        private void NewBoard_Click(object sender, RoutedEventArgs e) // Just an empty board, the name is not neccessary and nothing depends on it...
         {
             BoardContainer.Content = new Canvas() { Name="ProjectView" };
             ShareCodeView.Text = "N/A";
@@ -227,32 +242,41 @@ namespace PlanBoard
 
         private async void SignIn_Click(object sender, RoutedEventArgs e)
         {
-
+            // Tries to find the user with the username
             var user = _BVM.UserService.GetAll(X => X.Username == ExUsernameInput.Text).FirstOrDefault();
 
-            if (user != null && BCrypt.Net.BCrypt.Verify(ExPasswordInput.Text, user.Password))
+            if (user != null && BCrypt.Net.BCrypt.Verify(ExPasswordInput.Text, user.Password)) // If it found the user with the username and that the password matches.
             {
                 _User = user; 
                 MessageBox.Show("✅ Account Connected!");
+                
+                // Update the boards
                 FillLoadMenu();
+
+                // Same as NewBoard_Click, should probably make it a seperate function...
                 BoardContainer.Content = new Canvas() { Name = "ProjectView" };
                 ShareCodeView.Text = "N/A";
             }
-            else
+            else // User Authentication failed
             {
                 MessageBox.Show("❌ Invalid Username or Password!", "Incorrect Information", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
+            // Clears input fields
             ExUsernameInput.Text = "";
             ExPasswordInput.Text = "";
         }
 
         private async void SignUp_Click(object sender, RoutedEventArgs e)
         {
+            // Searches for an existing user with the inputed username.
             var existingUser = _BVM.UserService.GetAll(X => X.Username == UsernameInput.Text).FirstOrDefault();
 
-            if (existingUser == null)
+            if (existingUser == null) // If there is no user with that usrname yet, Account creation proceeds.
             {
+                // Password Encryption
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(PasswordInput.Text);
+                // Adds the new user
                 _BVM.UserService.Update(new UserModel() { Username = UsernameInput.Text, Password = hashedPassword });
 
                 MessageBox.Show("✅ Account Created!");
@@ -261,28 +285,37 @@ namespace PlanBoard
             {
                 MessageBox.Show($"❌ The user '{UsernameInput.Text}' already exists!", "Creation Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            //Clears input fields
             PasswordInput.Text = "";
             UsernameInput.Text = "";
         }
 
-        private void ShareCodeButton_Click(object sender, RoutedEventArgs e)
+        private void ShareCodeButton_Click(object sender, RoutedEventArgs e) // When the user enters an invitation link.
         {
-            if (_User != null)
+            if (_User != null) // If not guest
             {
+                // Gets the board name from the link
                 string Boardname = ShareCodeInput.Text.Substring(ShareCodeInput.Text.IndexOf("//Board:") + 8);
 
+                // Gets the original users name.
                 string Username = ShareCodeInput.Text.Substring(0, ShareCodeInput.Text.IndexOf("//Board"));
                 Username = Encoding.UTF8.GetString(Convert.FromBase64String(Username));
 
+                // Gets the board owner
                 UserModel user = _BVM.UserService.GetAll(X=>X.Username==Username).First();
+
                 try
                 {
-                    if (user != null)
+                    if (user != null) // If the board owner from the link does not exist
                     {
+                        //Gets the specific board from the user
                         var board = user.Boards.Where(X => X.Name == Boardname).FirstOrDefault();
-                        if (board != null)
+                        
+                        if (board != null) // If the user actually has a board with that name.
                         {
                             //board.Users.Add(_User);
+
+                            // Gives the current user access to the board.
                             _User.Boards.Add(board);
                             _BVM.UserService.Update(_User);
                         }
@@ -295,6 +328,7 @@ namespace PlanBoard
                     {
                         throw new Exception("Share Code was invalid!");
                     }
+                    // Update board list
                     FillLoadMenu();
                     MessageBox.Show("You gained access to a Canvas");
                 }
@@ -306,6 +340,7 @@ namespace PlanBoard
             {
                 MessageBox.Show("Account needed!");
             }
+            // Clears input field
             ShareCodeInput.Text = "";
         }
     }
