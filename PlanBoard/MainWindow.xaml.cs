@@ -26,6 +26,8 @@ namespace PlanBoard
 
         // Activated when Add note button is clicked
         bool AddNoteMode = false;
+        // Activated when the user presses down on a note then releases somewhere in the canvas
+        Border MoveNote = null;
 
         // Connected Account
         UserModel _User = null;
@@ -146,14 +148,7 @@ namespace PlanBoard
                 string BoardPath = $"{LocalBoardFolder}/{(sender as MenuItem).Header}.txt";
                 string xamlString = File.ReadAllText(BoardPath);
 
-                using (var stringReader = new StringReader(xamlString))
-                {
-                    using (var xmlReader = System.Xml.XmlReader.Create(stringReader))
-                    {
-                        Canvas obj = (Canvas)XamlReader.Load(xmlReader);
-                        BoardContainer.Content = obj;
-                    }
-                }
+                LoadCanvasFromXAML(xamlString);
             }
             else // Account
             {
@@ -161,26 +156,62 @@ namespace PlanBoard
                 var user = _BVM.UserService.GetAll(X => X.ID == _User.ID);
                 string xamlString = (_User = user.First()).Boards.Find(X => X.Name == Board).Content;
 
-                using (var stringReader = new StringReader(xamlString))
-                {
-                    using (var xmlReader = System.Xml.XmlReader.Create(stringReader))
-                    {
-                        Canvas obj = (Canvas)XamlReader.Load(xmlReader);
-                        BoardContainer.Content = obj;
-                    }
-                }
+                LoadCanvasFromXAML(xamlString);
 
                 // Creating the share link...
                 ShareCodeView.Text = $"{Convert.ToBase64String(Encoding.UTF8.GetBytes(_User.Username))}//Board:{Board}";
             }
         }
 
+        private void LoadCanvasFromXAML(string xamlString)
+        {
+            using (var stringReader = new StringReader(xamlString))
+            {
+                using (var xmlReader = System.Xml.XmlReader.Create(stringReader))
+                {
+                    Canvas obj = (Canvas)XamlReader.Load(xmlReader);
+
+                    //
+                    // Since xamlString Does not seem to save events, we will add them here manually like I did with movement (as an example)
+                    //
+                    foreach(var ch in obj.Children)
+                    {
+                        if(ch is Border)
+                        {
+                            Border bor = ch as Border;
+                            bor.MouseLeftButtonDown += NotePaper_MouseLeftButtonDown;
+                            bor.MouseLeftButtonUp += NotePaper_MouseLeftButtonUp;
+                        }
+                    }
+                    BoardContainer.Content = obj;
+                }
+            }
+        }
+
         private void ProjectView_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            // Makes sure the canvas is scaled to the size of the screen, (may be off, not tested).
+            // Makes sure the canvas is scaled to the size of the window, (may be off, not tested).
             Canvas can = BoardContainer.Content as Canvas;
             can.Width = this.Width;
             can.Height = this.Height - 100;
+
+            if (MoveNote != null) { // Moving Notes
+                Point mc = e.GetPosition((Canvas)BoardContainer.Content);
+
+                if (((Canvas)BoardContainer.Content).Width - 200 < mc.X)
+                {
+                    mc.X = ((Canvas)BoardContainer.Content).Width - 200;
+                }
+                if (((Canvas)BoardContainer.Content).Height - 200 < mc.Y)
+                {
+                    mc.Y = ((Canvas)BoardContainer.Content).Height - 200;
+                }
+
+                Canvas.SetTop(MoveNote, mc.Y);
+                Canvas.SetLeft(MoveNote, mc.X);
+
+                MoveNote = null;
+            }
 
             if (AddNoteMode) // Adding a note onto the board
             {
@@ -204,6 +235,8 @@ namespace PlanBoard
                 NotePaper.BorderThickness = new Thickness(0);
                 NotePaper.Width = 200;
                 NotePaper.Height = 200;
+                NotePaper.MouseLeftButtonDown += NotePaper_MouseLeftButtonDown;
+                NotePaper.MouseLeftButtonUp += NotePaper_MouseLeftButtonUp; ;
 
                 Grid NoteFormat = new Grid();
                 NoteFormat.RowDefinitions.Add(new RowDefinition() {
@@ -254,6 +287,16 @@ namespace PlanBoard
 
                 AddNoteMode = false;
             }
+        }
+
+        private void NotePaper_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) // Cancels movement if the user releases the mouse inside the note
+        {
+            MoveNote = null;
+        }
+
+        private void NotePaper_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) // Ready for movement.
+        {
+            MoveNote = sender as Border;
         }
 
         private void NewBoard_Click(object sender, RoutedEventArgs e) // Just an empty board, the name is not neccessary and nothing depends on it...
