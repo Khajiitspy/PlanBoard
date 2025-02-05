@@ -45,7 +45,7 @@ namespace PlanBoard
             this.DataContext = _BVM = BVM;
 
             // Load Board menu updating
-
+            FillLoadMenu();
         }
 
         private void SaveBoard_Click(object sender, RoutedEventArgs e)
@@ -76,7 +76,7 @@ namespace PlanBoard
                 }
                 ShareCodeView.Text = $"{Convert.ToBase64String(Encoding.UTF8.GetBytes(_User.Username))}//Board:{SaveFileNameInput.Text}";
             }
-            FillLoadMenu();
+            // Hello
         }
 
         private void AddNote_Click(object sender, RoutedEventArgs e)
