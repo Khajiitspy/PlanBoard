@@ -22,6 +22,9 @@ namespace PlanBoard
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// STUFFFFFFFFFFFFFFFFFFFF
+        /// </summary>
         BoardViewModel _BVM;
 
         // Activated when Add note button is clicked
