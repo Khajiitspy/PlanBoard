@@ -45,7 +45,7 @@ namespace PlanBoard
             this.DataContext = _BVM = BVM;
 
             // Load Board menu updating
-            FillLoadMenu();
+
         }
 
         private void SaveBoard_Click(object sender, RoutedEventArgs e)
