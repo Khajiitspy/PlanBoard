@@ -22,6 +22,9 @@ namespace PlanBoard
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// STUFFFFFFFFFFFFFFFFFFFF
+        /// </summary>
         BoardViewModel _BVM;
 
         // Activated when Add note button is clicked
@@ -42,7 +45,7 @@ namespace PlanBoard
             this.DataContext = _BVM = BVM;
 
             // Load Board menu updating
-            FillLoadMenu();
+
         }
 
         private void SaveBoard_Click(object sender, RoutedEventArgs e)
